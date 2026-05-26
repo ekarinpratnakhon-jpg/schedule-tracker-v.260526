@@ -245,7 +245,7 @@ body { font-family: 'Sarabun', 'Noto Sans Thai', Tahoma, sans-serif; background:
     </div>
   </div>
 
-  <div class="formula-box">
+  <div class="formula-box" id="priorityExplainBox">
     <div class="title">เกณฑ์ความเร่งด่วน (Priority)</div>
     <div class="content">
       ระบบให้คะแนนจาก <b style="color:#f1f5f9">3 ด้าน</b> แล้วรวมกัน:<br><br>
@@ -568,10 +568,12 @@ function calculate(){
     document.getElementById("catchupSection").style.display="none";
     document.getElementById("aheadSection").style.display="block";
     document.getElementById("kpiPriorityBox").style.display="none";
+    document.getElementById("priorityExplainBox").style.display="none";
   } else {
     document.getElementById("catchupSection").style.display="block";
     document.getElementById("aheadSection").style.display="none";
     document.getElementById("kpiPriorityBox").style.display="block";
+    document.getElementById("priorityExplainBox").style.display="block";
   }
 
   // Live example of current calculation
