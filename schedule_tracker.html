@@ -576,7 +576,10 @@ function calculate(){
 
   // Live example of current calculation
   var le=document.getElementById("liveExample");
-  var taskLabel=task||"งานปัจจุบัน";
+  if(status==="Ahead" || status==="Complete" || status==="On Track"){
+    le.style.display="none";
+  } else {
+    var taskLabel=task||"งานปัจจุบัน";
   var sf1="",sf2="",sf3="";
   var sc1=0,sh1=0;
   // SF scoring
@@ -598,6 +601,7 @@ function calculate(){
     sf1+"<br>"+sf2+"<br>"+sf3+"<br>"+
     "รวม: คะแนนวิกฤต "+scoreCrit+" + คะแนนสูง "+scoreHigh+" → ผล = <b style='color:"+priColor+"'>"+priority+"</b>"+
     "</span>";
+  }
 
   // Scroll to results
   document.getElementById("statusBanner").scrollIntoView({behavior:"smooth",block:"start"});
