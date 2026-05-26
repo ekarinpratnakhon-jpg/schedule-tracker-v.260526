@@ -248,13 +248,54 @@ body { font-family: 'Sarabun', 'Noto Sans Thai', Tahoma, sans-serif; background:
   <div class="formula-box">
     <div class="title">เกณฑ์ความเร่งด่วน (Priority)</div>
     <div class="content">
-      คำนวณจาก <b style="color:#f1f5f9">3 เกณฑ์</b> รวมคะแนน:<br><br>
-      <b>1.</b> SF ≥ 2.0 → CRIT+1 | SF ≥ 1.5 → HIGH+1<br>
-      <b>2.</b> ล่าช้า ≥ 14 วัน → CRIT+1 | ≥ 7 วัน → HIGH+1<br>
-      <b>3.</b> Variance ≥ 20% → CRIT+1 | ≥ 10% → HIGH+1<br><br>
-      <span style="color:#dc2626">■</span> CRIT ≥ 2 คะแนน → <b style="color:#dc2626">CRITICAL</b><br>
-      <span style="color:#f59e0b">■</span> CRIT ≥ 1 หรือ HIGH ≥ 2 → <b style="color:#f59e0b">HIGH</b><br>
-      <span style="color:#22c55e">■</span> อื่นๆ → <b style="color:#22c55e">MEDIUM</b><br><br>
+      ระบบให้คะแนนจาก <b style="color:#f1f5f9">3 ด้าน</b> แล้วรวมกัน:<br><br>
+
+      <b style="color:#f1f5f9">ด้านที่ 1: SF (ต้องเร่งเท่าไหร่)</b><br>
+      <span style="color:#ef4444">●</span> SF ตั้งแต่ 2.0 ขึ้นไป → ได้ 1 คะแนนวิกฤต<br>
+      <span style="color:#f59e0b">●</span> SF ตั้งแต่ 1.5 ขึ้นไป → ได้ 1 คะแนนสูง<br><br>
+
+      <b style="color:#f1f5f9">ด้านที่ 2: จำนวนวันล่าช้า</b><br>
+      <span style="color:#ef4444">●</span> ล่าช้า 14 วันขึ้นไป → ได้ 1 คะแนนวิกฤต<br>
+      <span style="color:#f59e0b">●</span> ล่าช้า 7 วันขึ้นไป → ได้ 1 คะแนนสูง<br><br>
+
+      <b style="color:#f1f5f9">ด้านที่ 3: Variance (%ต่างจากแผน)</b><br>
+      <span style="color:#ef4444">●</span> ต่างจากแผน 20% ขึ้นไป → ได้ 1 คะแนนวิกฤต<br>
+      <span style="color:#f59e0b">●</span> ต่างจากแผน 10% ขึ้นไป → ได้ 1 คะแนนสูง<br><br>
+
+      <b style="color:#f1f5f9">รวมคะแนนแล้วตัดสิน:</b><br>
+      <span style="color:#dc2626">■</span> คะแนนวิกฤต 2 ขึ้นไป → <b style="color:#dc2626">CRITICAL</b> ต้องแก้ทันที<br>
+      <span style="color:#f59e0b">■</span> คะแนนวิกฤต 1 หรือ คะแนนสูง 2 ขึ้นไป → <b style="color:#f59e0b">HIGH</b> เร่งแก้<br>
+      <span style="color:#22c55e">■</span> นอกจากนั้น → <b style="color:#22c55e">MEDIUM</b> จัดการได้<br><br>
+
+      <div style="background:#0f172a;border-radius:8px;padding:10px;margin-top:4px">
+        <b style="color:#f59e0b;font-size:12px">ตัวอย่างที่ 1:</b><br>
+        <span style="color:#cbd5e1;font-size:12px">
+        SF = 1.8 → ได้คะแนนสูง 1<br>
+        ล่าช้า 10 วัน → ได้คะแนนสูง 1<br>
+        Variance = -15% → ได้คะแนนสูง 1<br>
+        รวม: คะแนนสูง 3 → ผล = <b style="color:#f59e0b">HIGH</b>
+        </span>
+      </div>
+      <div style="background:#0f172a;border-radius:8px;padding:10px;margin-top:6px">
+        <b style="color:#ef4444;font-size:12px">ตัวอย่างที่ 2:</b><br>
+        <span style="color:#cbd5e1;font-size:12px">
+        SF = 2.5 → ได้คะแนนวิกฤต 1<br>
+        ล่าช้า 20 วัน → ได้คะแนนวิกฤต 1<br>
+        Variance = -30% → ได้คะแนนวิกฤต 1<br>
+        รวม: คะแนนวิกฤต 3 → ผล = <b style="color:#dc2626">CRITICAL</b>
+        </span>
+      </div>
+      <div style="background:#0f172a;border-radius:8px;padding:10px;margin-top:6px">
+        <b style="color:#22c55e;font-size:12px">ตัวอย่างที่ 3:</b><br>
+        <span style="color:#cbd5e1;font-size:12px">
+        SF = 1.2 → ไม่ได้คะแนน<br>
+        ล่าช้า 3 วัน → ไม่ได้คะแนน<br>
+        Variance = -5% → ไม่ได้คะแนน<br>
+        รวม: ไม่มีคะแนน → ผล = <b style="color:#22c55e">MEDIUM</b>
+        </span>
+      </div><br>
+      <div id="liveExample" style="display:none;background:#0f172a;border-radius:8px;padding:10px;margin-top:6px;border:1px solid #f59e0b44">
+      </div><br>
       <span style="color:#64748b">Ref: ANSI EIA-748 / CII RT-43 / PMBOK / NASA PM</span>
     </div>
   </div>
@@ -416,9 +457,12 @@ function calculate(){
   var spi=plan>0?actual/plan:0;
   var sf=spi>0?1/spi:0;
   var sfC=sf<1?1:sf;
+  // Round SF to 2 decimals - use this for ALL calculations
+  // So displayed SF matches calculated OT/Resource values
+  var sfR=Math.round(sfC*100)/100;
   var remain=dur*(1-actual/100);
 
-  // Priority
+  // Priority scoring (use raw sfC for accuracy)
   var scoreCrit=0,scoreHigh=0;
   var delayAbs=Math.abs(days),varAbs=Math.abs(variance);
   if(sfC>=SF_CRITICAL)scoreCrit++;else if(sfC>=SF_HIGH)scoreHigh++;
@@ -437,11 +481,11 @@ function calculate(){
   else if(days>=-DAY_CRITICAL){status="WARNING";stBg="#fecaca";stTx="#991b1b";}
   else{status="CRITICAL";stBg="#fca5a5";stTx="#7f1d1d";}
 
-  // Options
-  var ot_hrs=8*(sfC-1), ot_total=8+ot_hrs;
+  // Options (use sfR = rounded SF so numbers match display)
+  var ot_hrs=8*(sfR-1), ot_total=8+ot_hrs;
   var ot_prod="95% (CII)";
   if(ot_total>14)ot_prod="75% DANGER";else if(ot_total>12)ot_prod="85%";else if(ot_total>10)ot_prod="95%";
-  var res_add=res*(sfC-1),res_total=res+res_add;
+  var res_add=res*(sfR-1),res_total=res+res_add;
   var ext_days=Math.abs(days),ext_finish=null;
   if(finishDate){var d=new Date(finishDate);d.setDate(d.getDate()+Math.ceil(ext_days));ext_finish=d;}
   var mix_ot=ot_hrs/2,mix_res=res_add/2;
@@ -492,25 +536,27 @@ function calculate(){
   // Options content
   document.getElementById("opt1Body").innerHTML=
     cr("สูตร","OT = 8 × (SF-1)")+
-    cr("OT เพิ่ม",fmt(ot_hrs)+" ชั่วโมง/วัน",1)+
-    cr("ทำงานรวม",fmt(ot_total)+" ชั่วโมง/วัน")+
+    cr("คำนวณ","8 × ("+fmt(sfR,2)+" - 1) = "+fmt(ot_hrs,2))+
+    cr("OT เพิ่ม",fmt(ot_hrs,2)+" ชั่วโมง/วัน",1)+
+    cr("ทำงานรวม",fmt(ot_total,2)+" ชั่วโมง/วัน")+
     cr("Productivity",ot_prod);
 
   document.getElementById("opt2Body").innerHTML=
     cr("สูตร","Add = Res × (SF-1)")+
-    cr("เพิ่ม","+"+fmt(res_add)+" หน่วย",1)+
-    cr("รวม",fmt(res_total)+" หน่วย");
+    cr("คำนวณ",fmt(res,0)+" × ("+fmt(sfR,2)+" - 1) = "+fmt(res_add,2))+
+    cr("เพิ่ม","+"+fmt(res_add,2)+" หน่วย",1)+
+    cr("รวม",fmt(res_total,2)+" หน่วย");
 
   document.getElementById("opt3Body").innerHTML=
     cr("สูตร","Extend = Delay Days")+
-    cr("ขยาย","+"+fmt(ext_days)+" วัน",1)+
+    cr("ขยาย","+"+Math.round(ext_days)+" วัน",1)+
     cr("วันจบใหม่",fmtDate(ext_finish))+
     '<div class="warn">⚠ อาจมีค่า LAD ตามสัญญา</div>';
 
   document.getElementById("opt4Body").innerHTML=
     cr("สูตร","OT/2 + Res/2")+
-    cr("OT เพิ่ม","+"+fmt(mix_ot)+" ชั่วโมง",1)+
-    cr("เครื่องเพิ่ม","+"+fmt(mix_res)+" หน่วย",1)+
+    cr("OT เพิ่ม","+"+fmt(mix_ot,2)+" ชั่วโมง",1)+
+    cr("เครื่องเพิ่ม","+"+fmt(mix_res,2)+" หน่วย",1)+
     '<div class="note">ลดภาระแต่ละด้าน 50%</div>';
 
   // Close all options
@@ -527,6 +573,31 @@ function calculate(){
     document.getElementById("aheadSection").style.display="none";
     document.getElementById("kpiPriorityBox").style.display="block";
   }
+
+  // Live example of current calculation
+  var le=document.getElementById("liveExample");
+  var taskLabel=task||"งานปัจจุบัน";
+  var sf1="",sf2="",sf3="";
+  var sc1=0,sh1=0;
+  // SF scoring
+  if(sfR>=SF_CRITICAL){sf1="SF = "+fmt(sfR,2)+" (>=2.0) → <b style='color:#ef4444'>ได้คะแนนวิกฤต 1</b>";sc1++;}
+  else if(sfR>=SF_HIGH){sf1="SF = "+fmt(sfR,2)+" (>=1.5) → <b style='color:#f59e0b'>ได้คะแนนสูง 1</b>";sh1++;}
+  else{sf1="SF = "+fmt(sfR,2)+" (<1.5) → ไม่ได้คะแนน";}
+  // Delay scoring
+  if(delayAbs>=DAY_CRITICAL){sf2="ล่าช้า "+Math.round(delayAbs)+" วัน (>=14) → <b style='color:#ef4444'>ได้คะแนนวิกฤต 1</b>";sc1++;}
+  else if(delayAbs>=DAY_HIGH){sf2="ล่าช้า "+Math.round(delayAbs)+" วัน (>=7) → <b style='color:#f59e0b'>ได้คะแนนสูง 1</b>";sh1++;}
+  else{sf2="ล่าช้า "+Math.round(delayAbs)+" วัน (<7) → ไม่ได้คะแนน";}
+  // Variance scoring
+  if(varAbs>=VAR_CRITICAL){sf3="Variance = "+fmt(variance)+"% (>=20%) → <b style='color:#ef4444'>ได้คะแนนวิกฤต 1</b>";}
+  else if(varAbs>=VAR_HIGH){sf3="Variance = "+fmt(variance)+"% (>=10%) → <b style='color:#f59e0b'>ได้คะแนนสูง 1</b>";}
+  else{sf3="Variance = "+fmt(variance)+"% (<10%) → ไม่ได้คะแนน";}
+
+  le.style.display="block";
+  le.innerHTML="<b style='color:#f59e0b;font-size:12px'>ผลคำนวณ: "+taskLabel+"</b><br>"+
+    "<span style='color:#cbd5e1;font-size:12px'>"+
+    sf1+"<br>"+sf2+"<br>"+sf3+"<br>"+
+    "รวม: คะแนนวิกฤต "+scoreCrit+" + คะแนนสูง "+scoreHigh+" → ผล = <b style='color:"+priColor+"'>"+priority+"</b>"+
+    "</span>";
 
   // Scroll to results
   document.getElementById("statusBanner").scrollIntoView({behavior:"smooth",block:"start"});
