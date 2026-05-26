@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ติดตามแผนงาน">
+<meta name="theme-color" content="#0f172a">
+<title>โปรแกรมติดตามแผนงาน</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', 'Noto Sans Thai', Tahoma, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; max-width: 520px; margin: 0 auto; }
+.header { background: linear-gradient(135deg, #1e3a5f, #0c1829); padding: 24px 16px 18px; border-bottom: 3px solid #f59e0b; }
+.header h1 { font-size: 24px; font-weight: 800; color: #f8fafc; }
+.header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+.form { padding: 16px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
+.field input { width: 100%; padding: 11px 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; font-size: 15px; font-family: inherit; -webkit-appearance: none; }
+.field input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 2px #f59e0b33; }
+.date-group { display: flex; align-items: center; gap: 4px; }
+.date-group input { width: 100%; padding: 11px 4px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #f1f5f9; font-size: 16px; font-family: inherit; text-align: center; -webkit-appearance: none; }
+.date-group input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 2px #f59e0b33; }
+.date-group .sep { color: #64748b; font-size: 16px; font-weight: 600; flex-shrink: 0; }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.btn-calc { padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; font-weight: 800; font-size: 16px; cursor: pointer; font-family: inherit; }
+.btn-calc:active { transform: scale(0.97); }
+.btn-reset { padding: 14px; border-radius: 10px; border: 1px solid #334155; background: transparent; color: #94a3b8; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.results { padding: 0 16px 16px; }
+.status-banner { border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; text-align: center; }
+.status-banner .label { font-size: 12px; font-weight: 600; letter-spacing: 1px; }
+.status-banner .value { font-size: 28px; font-weight: 800; }
+.status-banner .task { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.kpi { background: #1e293b; border-radius: 10px; padding: 10px 8px; text-align: center; }
+.kpi .label { font-size: 10px; color: #94a3b8; font-weight: 600; margin-bottom: 4px; line-height: 1.2; }
+.kpi .value { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.recommend { border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; }
+.recommend .label { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+.recommend .value { font-size: 16px; font-weight: 800; }
+.section-title { font-size: 14px; font-weight: 700; color: #94a3b8; margin-bottom: 10px; letter-spacing: 1px; }
+.option { background: #1e293b; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; overflow: hidden; transition: border-color 0.2s; }
+.option.active { border-color: var(--opt-color); }
+.option-header { display: flex; align-items: center; padding: 12px 14px; cursor: pointer; user-select: none; }
+.option-num { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; margin-right: 10px; flex-shrink: 0; }
+.option-info { flex: 1; }
+.option-title { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+.option-ref { font-size: 10px; color: #64748b; }
+.option-arrow { font-size: 14px; color: #64748b; transition: transform 0.2s; }
+.option.active .option-arrow { transform: rotate(180deg); }
+.option-body { padding: 0 14px 14px; display: none; }
+.option.active .option-body { display: block; border-top: 1px solid #33415533; }
+.calc-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #33415522; }
+.calc-row .label { font-size: 12px; color: #94a3b8; }
+.calc-row .value { font-size: 13px; font-weight: 600; color: #cbd5e1; }
+.calc-row .value.hl { font-weight: 800; color: #f8fafc; }
+.formula-box { margin-top: 14px; padding: 12px 14px; background: #1e293b; border-radius: 10px; border: 1px solid #334155; }
+.formula-box .title { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 1px; margin-bottom: 6px; }
+.formula-box .content { font-size: 11px; color: #94a3b8; line-height: 1.8; }
+.footer { text-align: center; padding: 20px 16px; color: #475569; font-size: 11px; }
+.credit { margin: 0 16px 16px; border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border: 1px solid #1e3a5f; }
+.credit-inner { padding: 20px; text-align: center; position: relative; }
+.credit-inner::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: linear-gradient(90deg, transparent, #f59e0b, transparent); border-radius: 2px; }
+.credit-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+.credit-name { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, #f8fafc, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 1px; }
+.credit-title { font-size: 11px; color: #f59e0b; margin-top: 6px; font-weight: 600; letter-spacing: 0.5px; }
+.credit-divider { width: 30px; height: 1px; background: linear-gradient(90deg, transparent, #334155, transparent); margin: 12px auto; }
+.credit-version { font-size: 10px; color: #475569; letter-spacing: 1px; }
+.credit-ref { font-size: 9px; color: #334155; margin-top: 4px; letter-spacing: 0.5px; }
+.warn { font-size: 11px; color: #fca5a5; margin-top: 6px; font-weight: 600; }
+.note { font-size: 11px; color: #c4b5fd; margin-top: 6px; }
+#results { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>โปรแกรมติดตามแผนงาน</h1>
+  <p>Schedule Tracking & Catch Up Calculator</p>
+</div>
+
+<div class="form">
+  <div class="field">
+    <label>ชื่องาน (Task Name)</label>
+    <input type="text" id="task" placeholder="Step 3: Install king post">
+  </div>
+  <div class="field">
+    <label>ระยะเวลา (วัน)</label>
+    <input type="number" id="dur" placeholder="20" inputmode="decimal" oninput="tryAuto()">
+  </div>
+  <input type="hidden" id="res" value="1">
+  <div class="row">
+    <div class="field">
+      <label>วันเริ่ม (Start)</label>
+      <div class="date-group">
+        <input type="text" id="sd" placeholder="DD" inputmode="numeric" maxlength="2" oninput="jumpDate(this,'sm');tryAuto()">
+        <span class="sep">/</span>
+        <input type="text" id="sm" placeholder="MM" inputmode="numeric" maxlength="2" oninput="jumpDate(this,'sy');tryAuto()">
+        <span class="sep">/</span>
+        <input type="text" id="sy" placeholder="YYYY" inputmode="numeric" maxlength="4" oninput="tryAuto()">
+      </div>
+    </div>
+    <div class="field">
+      <label>วันจบ (Finish) <span id="autoTag" style="font-size:10px;color:#f59e0b;display:none">auto</span></label>
+      <div class="date-group">
+        <input type="text" id="fd" placeholder="DD" inputmode="numeric" maxlength="2" oninput="jumpDateF(this,'fm');autoPlan()">
+        <span class="sep">/</span>
+        <input type="text" id="fm" placeholder="MM" inputmode="numeric" maxlength="2" oninput="jumpDateF(this,'fy');autoPlan()">
+        <span class="sep">/</span>
+        <input type="text" id="fy" placeholder="YYYY" inputmode="numeric" maxlength="4" oninput="autoPlan()">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>% Plan <span id="planAutoTag" style="font-size:10px;color:#f59e0b;display:none">auto</span></label>
+      <input type="number" id="plan" placeholder="80" inputmode="decimal">
+    </div>
+    <div class="field">
+      <label>% Complete</label>
+      <input type="number" id="actual" placeholder="60" inputmode="decimal">
+    </div>
+  </div>
+  <div id="advToggle" onclick="toggleAdv()" style="text-align:center;padding:6px 0;cursor:pointer;user-select:none">
+    <span style="font-size:12px;color:#64748b" id="advLabel">▶ ตั้งค่าเพิ่มเติม</span>
+  </div>
+  <div id="advPanel" style="display:none;margin-bottom:8px;padding:10px 12px;background:#1e293b;border-radius:10px;border:1px solid #334155">
+    <div class="field" style="margin-bottom:10px">
+      <label>วันทำงาน/สัปดาห์</label>
+      <div style="display:flex;gap:8px">
+        <button onclick="setWPW(5)" id="wpw5" style="flex:1;padding:10px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">จ-ศ (5)</button>
+        <button onclick="setWPW(6)" id="wpw6" style="flex:1;padding:10px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">จ-ส (6)</button>
+        <button onclick="setWPW(7)" id="wpw7" style="flex:1;padding:10px;border-radius:8px;border:2px solid #f59e0b;background:#f59e0b22;color:#f59e0b;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">ทุกวัน (7)</button>
+      </div>
+      <input type="hidden" id="wpw" value="7">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>จำนวนเครื่องจักร/ทีมงาน (ใช้คำนวณทางเลือก 2 และ 4)</label>
+      <input type="number" id="resVisible" placeholder="1" value="1" inputmode="decimal" oninput="document.getElementById('res').value=this.value">
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn-calc" onclick="calculate()">คำนวณ</button>
+    <button class="btn-reset" onclick="resetForm()">ล้างค่า</button>
+  </div>
+</div>
+
+<div id="results" class="results">
+  <div id="statusBanner" class="status-banner"></div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Variance</div><div class="value" id="kVariance"></div></div>
+    <div class="kpi"><div class="label">ช้า/เร็ว (วัน)</div><div class="value" id="kDays"></div></div>
+    <div class="kpi"><div class="label">เหลือ (วัน)</div><div class="value" id="kRemain"></div></div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">SPI</div><div class="value" id="kSPI"></div></div>
+    <div class="kpi"><div class="label">SF (1/SPI)</div><div class="value" id="kSF"></div></div>
+    <div class="kpi" id="kpiPriorityBox"><div class="label">ความเร่งด่วน</div><div class="value" id="kPriority"></div></div>
+  </div>
+
+  <div id="catchupSection">
+  <div id="recommendBox" class="recommend"></div>
+
+  <div class="section-title">แผนเร่งงาน 4 ทางเลือก</div>
+
+  <div class="option" id="opt1" onclick="toggleOption(1)" style="--opt-color:#3b82f6">
+    <div class="option-header">
+      <div class="option-num" style="background:#3b82f6">1</div>
+      <div class="option-info"><div class="option-title">เพิ่มชั่วโมง (OT)</div><div class="option-ref">CII RT-43</div></div>
+      <div class="option-arrow">▼</div>
+    </div>
+    <div class="option-body" id="opt1Body"></div>
+  </div>
+
+  <div class="option" id="opt2" onclick="toggleOption(2)" style="--opt-color:#059669">
+    <div class="option-header">
+      <div class="option-num" style="background:#059669">2</div>
+      <div class="option-info"><div class="option-title">เพิ่มเครื่องจักร</div><div class="option-ref">PMBOK Crashing</div></div>
+      <div class="option-arrow">▼</div>
+    </div>
+    <div class="option-body" id="opt2Body"></div>
+  </div>
+
+  <div class="option" id="opt3" onclick="toggleOption(3)" style="--opt-color:#dc2626">
+    <div class="option-header">
+      <div class="option-num" style="background:#dc2626">3</div>
+      <div class="option-info"><div class="option-title">ขยายเวลา</div><div class="option-ref">CPM Float</div></div>
+      <div class="option-arrow">▼</div>
+    </div>
+    <div class="option-body" id="opt3Body"></div>
+  </div>
+
+  <div class="option" id="opt4" onclick="toggleOption(4)" style="--opt-color:#7c3aed">
+    <div class="option-header">
+      <div class="option-num" style="background:#7c3aed">4</div>
+      <div class="option-info"><div class="option-title">ผสมผสาน OT+เครื่องจักร</div><div class="option-ref">NASA PM</div></div>
+      <div class="option-arrow">▼</div>
+    </div>
+    <div class="option-body" id="opt4Body"></div>
+  </div>
+  </div>
+
+  <div id="aheadSection" style="display:none">
+    <div style="background:#dcfce722;border:2px solid #22c55e;border-radius:12px;padding:16px;text-align:center;margin-bottom:14px">
+      <div style="font-size:28px;margin-bottom:6px">✓</div>
+      <div style="font-size:16px;font-weight:700;color:#22c55e;margin-bottom:4px">งานเป็นไปตามแผนหรือเร็วกว่าแผน</div>
+      <div style="font-size:13px;color:#94a3b8">ไม่จำเป็นต้องเร่งงาน ดำเนินการต่อตามปกติ</div>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="title">สูตรคำนวณ</div>
+    <div class="content">
+      <b style="color:#f1f5f9">SPI</b> = %Actual / %Plan<br>
+      <b style="color:#f1f5f9">SF</b> = 1 / SPI<br>
+      Variance = %Actual - %Plan<br>
+      Days = Variance/100 × Duration
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="title">SPI คืออะไร? (Schedule Performance Index)</div>
+    <div class="content">
+      <b style="color:#f1f5f9">ดัชนีประสิทธิภาพเวลา</b> — บอกว่าทำงานได้เร็วแค่ไหนเทียบกับแผน<br><br>
+      <span style="color:#22c55e">■</span> SPI ≥ 1.0 → <b style="color:#22c55e">ปกติ/เร็วกว่าแผน</b><br>
+      <span style="color:#f59e0b">■</span> SPI 0.8-1.0 → <b style="color:#f59e0b">ช้ากว่าแผนเล็กน้อย</b> — เฝ้าระวัง<br>
+      <span style="color:#ef4444">■</span> SPI 0.6-0.8 → <b style="color:#ef4444">ช้ามาก</b> — ต้องแก้ไข<br>
+      <span style="color:#dc2626">■</span> SPI < 0.6 → <b style="color:#dc2626">วิกฤต</b> — ประชุมด่วน
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="title">SF คืออะไร? (Schedule Factor)</div>
+    <div class="content">
+      <b style="color:#f1f5f9">ตัวเร่งงาน</b> — บอกว่าต้องเพิ่มความเร็วกี่เท่าถึงจะทันกำหนด<br><br>
+      <span style="color:#22c55e">■</span> SF = 1.0 → <b style="color:#22c55e">ปกติ</b> ไม่ต้องเร่ง<br>
+      <span style="color:#22c55e">■</span> SF 1.0-1.3 → <b style="color:#22c55e">MEDIUM</b> เพิ่ม OT เล็กน้อย<br>
+      <span style="color:#f59e0b">■</span> SF 1.3-1.5 → <b style="color:#f59e0b">HIGH</b> เพิ่มเครื่องจักร/คน<br>
+      <span style="color:#ef4444">■</span> SF 1.5-2.0 → <b style="color:#ef4444">HIGH</b> ต้องเร่งหลายด้าน<br>
+      <span style="color:#dc2626">■</span> SF ≥ 2.0 → <b style="color:#dc2626">CRITICAL</b> ต้องเร่ง 2 เท่า — วิกฤต<br><br>
+      <span style="color:#64748b">ตัวอย่าง: SF=1.25 → ต้องเร่งงาน 25% → เพิ่ม OT 2 ชม./วัน</span>
+    </div>
+  </div>
+
+  <div class="formula-box">
+    <div class="title">เกณฑ์ความเร่งด่วน (Priority)</div>
+    <div class="content">
+      คำนวณจาก <b style="color:#f1f5f9">3 เกณฑ์</b> รวมคะแนน:<br><br>
+      <b>1.</b> SF ≥ 2.0 → CRIT+1 | SF ≥ 1.5 → HIGH+1<br>
+      <b>2.</b> ล่าช้า ≥ 14 วัน → CRIT+1 | ≥ 7 วัน → HIGH+1<br>
+      <b>3.</b> Variance ≥ 20% → CRIT+1 | ≥ 10% → HIGH+1<br><br>
+      <span style="color:#dc2626">■</span> CRIT ≥ 2 คะแนน → <b style="color:#dc2626">CRITICAL</b><br>
+      <span style="color:#f59e0b">■</span> CRIT ≥ 1 หรือ HIGH ≥ 2 → <b style="color:#f59e0b">HIGH</b><br>
+      <span style="color:#22c55e">■</span> อื่นๆ → <b style="color:#22c55e">MEDIUM</b><br><br>
+      <span style="color:#64748b">Ref: ANSI EIA-748 / CII RT-43 / PMBOK / NASA PM</span>
+    </div>
+  </div>
+</div>
+
+<div class="credit">
+  <div class="credit-inner">
+    <div class="credit-label">Developed by</div>
+    <div class="credit-name">Ekarin Pratnakhon</div>
+    <div class="credit-divider"></div>
+    <div class="credit-version">โปรแกรมติดตามแผนงาน v1.0</div>
+    <div class="credit-ref">ANSI EIA-748 &bull; CII RT-43 &bull; PMBOK &bull; NASA PM</div>
+  </div>
+</div>
+
+<div class="footer" style="padding-bottom:30px">
+  Schedule Tracking & Catch Up Calculator &copy; 2026
+</div>
+
+<script>
+const SF_CRITICAL=2,SF_HIGH=1.5,DAY_CRITICAL=14,DAY_HIGH=7,DAY_MEDIUM=1,VAR_CRITICAL=20,VAR_HIGH=10;
+let currentOption=null;
+
+// Auto-jump: DD -> MM -> YYYY for Start fields
+function jumpDate(el, nextId){
+  el.value=el.value.replace(/\D/g,"");
+  if(el.value.length>=2) document.getElementById(nextId).focus();
+}
+// Auto-jump for Finish fields (same but no auto-trigger)
+function jumpDateF(el, nextId){
+  el.value=el.value.replace(/\D/g,"");
+  if(el.value.length>=2) document.getElementById(nextId).focus();
+}
+
+// Read 3 fields -> Date object
+function readDate(prefix){
+  var d=parseInt(document.getElementById(prefix+"d").value,10);
+  var m=parseInt(document.getElementById(prefix+"m").value,10)-1;
+  var y=parseInt(document.getElementById(prefix+"y").value,10);
+  if(isNaN(d)||isNaN(m)||isNaN(y)||d<1||d>31||m<0||m>11) return null;
+  if(y>2500) y=y-543;
+  if(y<1900||y>2100) return null;
+  return new Date(y,m,d);
+}
+
+// Write Date -> 3 fields
+function writeDate(prefix, dt){
+  if(!dt) return;
+  document.getElementById(prefix+"d").value=("0"+dt.getDate()).slice(-2);
+  document.getElementById(prefix+"m").value=("0"+(dt.getMonth()+1)).slice(-2);
+  document.getElementById(prefix+"y").value=dt.getFullYear();
+}
+
+// Format Date -> dd/mm/yyyy string
+function toDDMMYYYY(d){
+  if(!d) return "";
+  return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
+}
+
+// Master trigger: called every time Start or Duration changes
+function tryAuto(){
+  autoFinish();
+  autoPlan();
+}
+
+// Get work days per week setting
+function getWPW(){
+  var el=document.getElementById("wpw");
+  return el?parseInt(el.value,10):7;
+}
+
+// Add working days to a date (skip non-working days)
+function addWorkDays(startDate, numDays, wpw){
+  if(wpw>=7){
+    var d=new Date(startDate);
+    d.setDate(d.getDate()+numDays);
+    return d;
+  }
+  var d=new Date(startDate);
+  var added=0;
+  while(added<numDays){
+    d.setDate(d.getDate()+1);
+    var dow=d.getDay();
+    if(wpw===6){
+      if(dow!==0) added++;
+    } else {
+      if(dow!==0 && dow!==6) added++;
+    }
+  }
+  return d;
+}
+
+// Count working days between two dates
+function countWorkDays(start, end, wpw){
+  if(wpw>=7) return Math.round((end-start)/(1000*60*60*24));
+  var count=0;
+  var d=new Date(start);
+  while(d<end){
+    d.setDate(d.getDate()+1);
+    var dow=d.getDay();
+    if(wpw===6){
+      if(dow!==0) count++;
+    } else {
+      if(dow!==0 && dow!==6) count++;
+    }
+  }
+  return count;
+}
+
+// Auto Finish = Start + (Duration - 1) working days (inclusive: Day 1 = Start)
+function autoFinish(){
+  var dur=parseFloat(document.getElementById("dur").value);
+  var startDate=readDate("s");
+  if(dur>0 && startDate){
+    var wpw=getWPW();
+    var finDate=addWorkDays(startDate, dur - 1, wpw);
+    writeDate("f",finDate);
+    document.getElementById("autoTag").style.display="inline";
+    autoPlan();
+  }
+}
+
+// Auto %Plan = (elapsed working days + 1) / Duration x 100
+// +1 because MS Project counts Start as Day 1
+function autoPlan(){
+  var startDate=readDate("s");
+  var dur=parseFloat(document.getElementById("dur").value);
+  if(startDate && dur>0){
+    var today=new Date();
+    today.setHours(0,0,0,0);
+    var pct=0;
+    if(today<startDate){ pct=0; }
+    else{
+      var wpw=getWPW();
+      var elapsedWD=countWorkDays(startDate, today, wpw) + 1;
+      pct=Math.round((elapsedWD/dur)*10000)/100;
+      if(pct>100) pct=100;
+    }
+    document.getElementById("plan").value=pct;
+    document.getElementById("planAutoTag").style.display="inline";
+  }
+}
+
+function fmt(n,d){if(d===undefined||d===null)d=1;return n!=null?Number(n).toFixed(d):"-";}
+function fmtDate(d){if(!d)return"-";return toDDMMYYYY(d);}
+
+function calculate(){
+  var dur=parseFloat(document.getElementById("dur").value)||0;
+  var plan=parseFloat(document.getElementById("plan").value)||0;
+  var actual=parseFloat(document.getElementById("actual").value)||0;
+  var res=parseFloat(document.getElementById("res").value)||1;
+  var task=document.getElementById("task").value;
+  var finishDate=readDate("f");
+
+  if(dur<=0){alert("กรุณาป้อนระยะเวลา (วัน)");return;}
+
+  var variance=actual-plan;
+  var days=(variance/100)*dur;
+  var spi=plan>0?actual/plan:0;
+  var sf=spi>0?1/spi:0;
+  var sfC=sf<1?1:sf;
+  var remain=dur*(1-actual/100);
+
+  // Priority
+  var scoreCrit=0,scoreHigh=0;
+  var delayAbs=Math.abs(days),varAbs=Math.abs(variance);
+  if(sfC>=SF_CRITICAL)scoreCrit++;else if(sfC>=SF_HIGH)scoreHigh++;
+  if(delayAbs>=DAY_CRITICAL)scoreCrit++;else if(delayAbs>=DAY_HIGH)scoreHigh++;
+  if(varAbs>=VAR_CRITICAL)scoreCrit++;else if(varAbs>=VAR_HIGH)scoreHigh++;
+  var priority="MEDIUM",priColor="#059669";
+  if(scoreCrit>=2){priority="CRITICAL";priColor="#dc2626";}
+  else if(scoreCrit>=1||scoreHigh>=2){priority="HIGH";priColor="#d97706";}
+
+  // Status
+  var status="On Track",stBg="#fef9c3",stTx="#854d0e";
+  if(actual>=100){status="Complete";stBg="#dbeafe";stTx="#1e40af";}
+  else if(days>DAY_MEDIUM){status="Ahead";stBg="#dcfce7";stTx="#166534";}
+  else if(days>=-DAY_MEDIUM){status="On Track";}
+  else if(days>=-DAY_HIGH){status="Delay";stBg="#fed7aa";stTx="#9a3412";}
+  else if(days>=-DAY_CRITICAL){status="WARNING";stBg="#fecaca";stTx="#991b1b";}
+  else{status="CRITICAL";stBg="#fca5a5";stTx="#7f1d1d";}
+
+  // Options
+  var ot_hrs=8*(sfC-1), ot_total=8+ot_hrs;
+  var ot_prod="95% (CII)";
+  if(ot_total>14)ot_prod="75% DANGER";else if(ot_total>12)ot_prod="85%";else if(ot_total>10)ot_prod="95%";
+  var res_add=res*(sfC-1),res_total=res+res_add;
+  var ext_days=Math.abs(days),ext_finish=null;
+  if(finishDate){var d=new Date(finishDate);d.setDate(d.getDate()+Math.ceil(ext_days));ext_finish=d;}
+  var mix_ot=ot_hrs/2,mix_res=res_add/2;
+
+  var recommend="ทางเลือก 1: เพิ่ม OT";
+  if(priority==="CRITICAL")recommend="ทางเลือก 4: ผสมผสาน";
+  else if(priority==="HIGH")recommend="ทางเลือก 2: เพิ่มเครื่องจักร";
+
+  // Render
+  document.getElementById("results").style.display="block";
+
+  // Status
+  var sb=document.getElementById("statusBanner");
+  sb.style.background=stBg;
+  sb.innerHTML='<div class="label" style="color:'+stTx+'">STATUS</div><div class="value" style="color:'+stTx+'">'+status+'</div>'+(task?'<div class="task" style="color:'+stTx+'">'+task+'</div>':'');
+
+  // KPI
+  var vc=variance>=0?"#22c55e":"#ef4444";
+  var dc=days>=0?"#22c55e":"#ef4444";
+  var sc=spi>=1?"#22c55e":"#ef4444";
+  var fc=sfC<=1.3?"#22c55e":sfC<=1.5?"#f59e0b":"#ef4444";
+
+  document.getElementById("kVariance").style.color=vc;
+  document.getElementById("kVariance").textContent=fmt(variance)+"%";
+  document.getElementById("kDays").style.color=dc;
+  document.getElementById("kDays").textContent=Math.round(days);
+  document.getElementById("kRemain").style.color="#60a5fa";
+  document.getElementById("kRemain").textContent=Math.round(remain);
+  document.getElementById("kSPI").style.color=sc;
+  document.getElementById("kSPI").textContent=fmt(spi,2);
+  document.getElementById("kSF").style.color=fc;
+  document.getElementById("kSF").textContent=fmt(sfC,2);
+  document.getElementById("kPriority").style.color=priColor;
+  document.getElementById("kPriority").textContent=priority;
+
+  // KPI border tops
+  document.querySelectorAll(".kpi").forEach(function(el,i){
+    var colors=[vc,dc,"#60a5fa",sc,fc,priColor];
+    el.style.borderTop="3px solid "+colors[i];
+  });
+
+  // Recommend
+  var rb=document.getElementById("recommendBox");
+  rb.style.background=priColor+"18";
+  rb.style.border="2px solid "+priColor;
+  rb.innerHTML='<div class="label" style="color:'+priColor+'">คำแนะนำ</div><div class="value" style="color:'+priColor+'">'+recommend+'</div>';
+
+  // Options content
+  document.getElementById("opt1Body").innerHTML=
+    cr("สูตร","OT = 8 × (SF-1)")+
+    cr("OT เพิ่ม",fmt(ot_hrs)+" ชั่วโมง/วัน",1)+
+    cr("ทำงานรวม",fmt(ot_total)+" ชั่วโมง/วัน")+
+    cr("Productivity",ot_prod);
+
+  document.getElementById("opt2Body").innerHTML=
+    cr("สูตร","Add = Res × (SF-1)")+
+    cr("เพิ่ม","+"+fmt(res_add)+" หน่วย",1)+
+    cr("รวม",fmt(res_total)+" หน่วย");
+
+  document.getElementById("opt3Body").innerHTML=
+    cr("สูตร","Extend = Delay Days")+
+    cr("ขยาย","+"+fmt(ext_days)+" วัน",1)+
+    cr("วันจบใหม่",fmtDate(ext_finish))+
+    '<div class="warn">⚠ อาจมีค่า LAD ตามสัญญา</div>';
+
+  document.getElementById("opt4Body").innerHTML=
+    cr("สูตร","OT/2 + Res/2")+
+    cr("OT เพิ่ม","+"+fmt(mix_ot)+" ชั่วโมง",1)+
+    cr("เครื่องเพิ่ม","+"+fmt(mix_res)+" หน่วย",1)+
+    '<div class="note">ลดภาระแต่ละด้าน 50%</div>';
+
+  // Close all options
+  currentOption=null;
+  document.querySelectorAll(".option").forEach(function(el){el.classList.remove("active");});
+
+  // Show/hide catchup section based on status
+  if(status==="Ahead" || status==="Complete" || status==="On Track"){
+    document.getElementById("catchupSection").style.display="none";
+    document.getElementById("aheadSection").style.display="block";
+    document.getElementById("kpiPriorityBox").style.display="none";
+  } else {
+    document.getElementById("catchupSection").style.display="block";
+    document.getElementById("aheadSection").style.display="none";
+    document.getElementById("kpiPriorityBox").style.display="block";
+  }
+
+  // Scroll to results
+  document.getElementById("statusBanner").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function cr(label,value,hl){
+  return '<div class="calc-row"><span class="label">'+label+'</span><span class="value'+(hl?' hl':'')+'">'+value+'</span></div>';
+}
+
+function toggleOption(n){
+  var el=document.getElementById("opt"+n);
+  if(currentOption===n){el.classList.remove("active");currentOption=null;}
+  else{document.querySelectorAll(".option").forEach(function(e){e.classList.remove("active");});el.classList.add("active");currentOption=n;}
+}
+
+function resetForm(){
+  document.getElementById("task").value="";
+  document.getElementById("dur").value="";
+  document.getElementById("sd").value="";
+  document.getElementById("sm").value="";
+  document.getElementById("sy").value="";
+  document.getElementById("fd").value="";
+  document.getElementById("fm").value="";
+  document.getElementById("fy").value="";
+  document.getElementById("plan").value="";
+  document.getElementById("actual").value="";
+  document.getElementById("res").value="1";
+  document.getElementById("resVisible").value="1";
+  document.getElementById("results").style.display="none";
+  document.getElementById("autoTag").style.display="none";
+  document.getElementById("planAutoTag").style.display="none";
+  document.getElementById("advPanel").style.display="none";
+  document.getElementById("advLabel").textContent="\u25B6 \u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E40\u0E15\u0E34\u0E21";
+  currentOption=null;
+}
+
+function toggleAdv(){
+  var p=document.getElementById("advPanel");
+  var l=document.getElementById("advLabel");
+  if(p.style.display==="none"){
+    p.style.display="block";
+    l.textContent="\u25BC \u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E40\u0E15\u0E34\u0E21";
+  }else{
+    p.style.display="none";
+    l.textContent="\u25B6 \u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E40\u0E15\u0E34\u0E21";
+  }
+}
+
+function setWPW(n){
+  document.getElementById("wpw").value=n;
+  var btns=[5,6,7];
+  btns.forEach(function(v){
+    var el=document.getElementById("wpw"+v);
+    if(v===n){
+      el.style.border="2px solid #f59e0b";
+      el.style.background="#f59e0b22";
+      el.style.color="#f59e0b";
+      el.style.fontWeight="700";
+    }else{
+      el.style.border="1px solid #334155";
+      el.style.background="#1e293b";
+      el.style.color="#94a3b8";
+      el.style.fontWeight="600";
+    }
+  });
+  tryAuto();
+}
+</script>
+</body>
+</html>
